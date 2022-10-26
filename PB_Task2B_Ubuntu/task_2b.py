@@ -5,10 +5,10 @@
 *             Pharma Bot Theme (eYRC 2022-23)
 *        =================================================
 *                                                         
-*  This script is intended for implementation of Task 2A   
+*  This script is intended for implementation of Task 2B   
 *  of Pharma Bot (PB) Theme (eYRC 2022-23).
 *
-*  Filename:			task_2a.py
+*  Filename:			task_2b.py
 *  Created:				
 *  Last Modified:		8/10/2022
 *  Author:				e-Yantra Team
@@ -23,8 +23,8 @@
 
 # Team ID:			[ Team-ID ]
 # Author List:		[ Names of team members worked on this file separated by Comma: Name1, Name2, ... ]
-# Filename:			task_2a.py
-# Functions:		control_logic, detect_distance_sensor_1, detect_distance_sensor_2
+# Filename:			task_2b.py
+# Functions:		control_logic, read_qr_code
 # 					[ Comma separated list of functions in this file ]
 # Global variables:	
 # 					[ List of global variables defined in this file ]
@@ -39,43 +39,27 @@ import os
 import math
 from zmqRemoteApi import RemoteAPIClient
 import zmq
+import numpy as np
+import cv2
+import random
+from pyzbar.pyzbar import decode
 ##############################################################
-kp=5.8 #working fine for 5.8
-kd=3 #working fine for 1.33
-def forward(sim,left,right,distance_side,e_prev):
-	if distance_side==None or (distance_side >= 0.170 and distance_side<0.180):
-		sim.setJointTargetVelocity(left,4)
-		sim.setJointTargetVelocity(right,4)
-	else :
-		delta=distance_side-0.175
-		P=kp*delta
-		D=kd*(delta-e_prev)
-		pd=P-D
-		print(e_prev)
-		e_prev=delta
-		sim.setJointTargetVelocity(left,4+pd)
-		sim.setJointTargetVelocity(right,4-pd)
 
-	return e_prev
+################# ADD UTILITY FUNCTIONS HERE #################
 
 
-def left_move(sim,left,right):
-	sim.setJointTargetVelocity(left,-2)
-	sim.setJointTargetVelocity(right,2)
-	time.sleep(1)
 
 
-def right_move(sim,left,right):
-	sim.setJointTargetVelocity(left,2)
-	sim.setJointTargetVelocity(right,-2)
-	time.sleep(1)
+
+##############################################################
+
 def control_logic(sim):
 	"""
 	Purpose:
 	---
 	This function should implement the control logic for the given problem statement
-	You are required to actuate the rotary joints of the robot in this function, such that
-	it traverses the points in given order
+	You are required to make the robot follow the line to cover all the checkpoints
+	and deliver packages at the correct locations.
 
 	Input Arguments:
 	---
@@ -90,59 +74,16 @@ def control_logic(sim):
 	---
 	control_logic(sim)
 	"""
-	speed_left=1
-	speed_right=1
-	# tolerance=0.001
-	left=sim.getObjectHandle('/Diff_Drive_Bot/left_joint')
-	right=sim.getObjectHandle('/Diff_Drive_Bot/right_joint')
-	sim.setJointTargetVelocity(left,0)
-	sim.setJointTargetVelocity(right,0)
-	right_temp=0
-	left_temp=0
-	e_prev=0
-	while True:
-		
-		distance_side=detect_distance_sensor_2(sim)
-		# print(distance_side)
-		distance_front=detect_distance_sensor_1(sim)
-		# print(distance_front)
-		if distance_front==None:
-			e_prev=forward(sim,left,right,distance_side,e_prev)
-			print(e_prev)
-			left_temp=0
-			right_temp=0
-			# print('right')
-		elif (distance_front<=0.22 ) and distance_side!=None:
-			left_move(sim,left,right)
-			left_temp=1
-			print('left')
-		elif (distance_front<=0.22 ) and distance_side==None:
-			right_move(sim,left,right)
-			print("right")
-
 	##############  ADD YOUR CODE HERE  ##############
-	
-	# while True:
-	# 	distance_side=detect_distance_sensor_2(sim)
-	# 	distance_front=detect_distance_sensor_1(sim)
-	# 	print(distance_side)
-	# 	if(distance_side is not None):
-	# 		speed_left=speed_left-(0.17-distance_side)*0.75
-	# 		speed_right=speed_right+(0.17-distance_side)*0.75
-		
-	# 	sim.setJointTargetVelocity(left,speed_left)
-	# 	sim.setJointTargetVelocity(right,speed_right)
-
-
-
 
 	##################################################
 
-def detect_distance_sensor_1(sim):
+def read_qr_code(sim):
 	"""
 	Purpose:
 	---
-	Returns the distance of obstacle detected by proximity sensor named 'distance_sensor_1'
+	This function detects the QR code present in the camera's field of view and
+	returns the message encoded into it.
 
 	Input Arguments:
 	---
@@ -151,70 +92,26 @@ def detect_distance_sensor_1(sim):
 
 	Returns:
 	---
-	distance  :  [ float ]
-	    distance of obstacle from sensor
+	`qr_message`   :    [ string ]
+		QR message retrieved from reading QR code
 
 	Example call:
 	---
-	distance_1 = detect_distance_sensor_1(sim)
+	control_logic(sim)
 	"""
-	distance = None
-
+	qr_message = None
 	##############  ADD YOUR CODE HERE  ##############
-	sensor1=sim.getObjectHandle('/distance_sensor_1')
-	
-	temp=sim.readProximitySensor(sensor1)
-	if temp[0]:
-		distance= temp[1]
-	
-
-
 
 	##################################################
-	return distance
+	return qr_message
 
-def detect_distance_sensor_2(sim):
-	"""
-	Purpose:
-	---
-	Returns the distance of obstacle detected by proximity sensor named 'distance_sensor_2'
-
-	Input Arguments:
-	---
-	`sim`    :   [ object ]
-		ZeroMQ RemoteAPI object
-
-	Returns:
-	---
-	distance  :  [ float ]
-	    distance of obstacle from sensor
-
-	Example call:
-	---
-	distance_2 = detect_distance_sensor_2(sim)
-	"""
-	distance = None
-
-	##############  ADD YOUR CODE HERE  ##############
-	sensor2=sim.getObjectHandle('/Diff_Drive_Bot/distance_sensor_2')
-	temp=sim.readProximitySensor(sensor2)
-	if temp[0]:
-		distance= temp[1]
-		
-
-
-
-	##################################################
-	return distance
 
 ######### YOU ARE NOT ALLOWED TO MAKE CHANGES TO THE MAIN CODE BELOW #########
 
 if __name__ == "__main__":
 	client = RemoteAPIClient()
-	sim = client.getObject('sim')
-	
+	sim = client.getObject('sim')	
 
-	
 	try:
 
 		## Start the simulation using ZeroMQ RemoteAPI
@@ -233,8 +130,8 @@ if __name__ == "__main__":
 
 		## Runs the robot navigation logic written by participants
 		try:
-			control_logic(sim)
 			time.sleep(5)
+			control_logic(sim)
 
 		except Exception:
 			print('\n[ERROR] Your control_logic function throwed an Exception, kindly debug your code!')
