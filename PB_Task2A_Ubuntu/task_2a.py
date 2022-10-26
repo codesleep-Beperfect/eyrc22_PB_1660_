@@ -40,28 +40,35 @@ import math
 from zmqRemoteApi import RemoteAPIClient
 import zmq
 ##############################################################
-def forward(sim,left,right,distance_side):
-	if distance_side >= 0.163 and distance_side<0.177:
+kp=6.33 #working fine for 6.5
+kd=1.288 #working fine for 1.3
+def forward(sim,left,right,distance_side,e_prev):
+	if distance_side==None or (distance_side >= 0.170 and distance_side<0.180):
 		sim.setJointTargetVelocity(left,2)
 		sim.setJointTargetVelocity(right,2)
-	elif distance_side <0.163:
-		delta=0.17-distance_side
+	else :
+		delta=distance_side-0.17
+		P=kp*delta
+		D=kd*(delta-e_prev)
+		pd=P-D
+		print(e_prev)
+		e_prev=delta
+		sim.setJointTargetVelocity(left,2+pd)
+		sim.setJointTargetVelocity(right,2-pd)
 
-		sim.setJointTargetVelocity(left,2-delta*3)
-		sim.setJointTargetVelocity(right,2+delta*3)
-	elif distance_side>=0.177:
-		delta=distance_side-0.177
-		sim.setJointTargetVelocity(left,2+delta*3)
-		sim.setJointTargetVelocity(right,2-delta*3)
+	return e_prev
+
+
 def left_move(sim,left,right):
 	sim.setJointTargetVelocity(left,-1)
 	sim.setJointTargetVelocity(right,1)
-	time.sleep(3.3)
+	time.sleep(2.6)
+
 
 def right_move(sim,left,right):
 	sim.setJointTargetVelocity(left,1)
 	sim.setJointTargetVelocity(right,-1)
-	time.sleep(3.3)
+	time.sleep(2.6)
 def control_logic(sim):
 	"""
 	Purpose:
@@ -92,22 +99,24 @@ def control_logic(sim):
 	sim.setJointTargetVelocity(right,0)
 	right_temp=0
 	left_temp=0
+	e_prev=0
 	while True:
-
+		
 		distance_side=detect_distance_sensor_2(sim)
 		# print(distance_side)
 		distance_front=detect_distance_sensor_1(sim)
-		print(distance_front)
-		if distance_front==None and distance_side!= None:
-			forward(sim,left,right,distance_side)
+		# print(distance_front)
+		if distance_front==None:
+			e_prev=forward(sim,left,right,distance_side,e_prev)
+			print(e_prev)
 			left_temp=0
 			right_temp=0
 			# print('right')
-		elif (distance_front<=0.20 and distance_front>=0.18) and distance_side!=None:
+		elif (distance_front<=0.22 ) and distance_side!=None:
 			left_move(sim,left,right)
 			left_temp=1
 			print('left')
-		elif (distance_front<=0.20 and distance_front>=0.18) and distance_side==None:
+		elif (distance_front<=0.22 ) and distance_side==None:
 			right_move(sim,left,right)
 			print("right")
 
