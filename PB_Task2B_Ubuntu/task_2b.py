@@ -52,7 +52,18 @@ from pyzbar.pyzbar import decode
 
 
 ##############################################################
-
+kp=1
+kd=0
+def pid(sim,error, previous_error):
+	P=error*kp
+	D=error-previous_error
+	pid_value=P+kd*D
+	left=sim.getObjectHandle('/Diff_Drive_Bot/left_joint')
+	right=sim.getObjectHandle('/Diff_Drive_Bot/right_joint')
+	#right velo +pid_value
+	sim.setJointTargetVelocity(left,4-pid_value)
+	sim.setJointTargetVelocity(right,4+pid_value)
+	return error
 def control_logic(sim):
 	"""
 	Purpose:
@@ -75,7 +86,76 @@ def control_logic(sim):
 	control_logic(sim)
 	"""
 	##############  ADD YOUR CODE HERE  ##############
+	
+	# left=sim.getObjectHandle('/Diff_Drive_Bot/left_joint')
+	# right=sim.getObjectHandle('/Diff_Drive_Bot/right_joint')
+	# sim.setJointTargetVelocity(left,1)
+	# sim.setJointTargetVelocity(right,1)
 
+	vision_sensor_handle=sim.getObjectHandle('/Diff_Drive_Bot/vision_sensor')
+	error=0
+	previous_error=0
+	while True:
+		img,shape=sim.getVisionSensorImg(vision_sensor_handle)
+		# print(shape)
+		img=np.frombuffer(img,dtype=np.uint8).reshape(shape[0],shape[1],3)
+		img=cv2.flip(cv2.cvtColor(img,cv2.COLOR_BGR2RGB),0)
+		# print(img[])
+		# white 255 255 255
+		#black 76 76 76 
+		#light gray 198 198 198
+		#medium gray 154 154 154
+		#dark gray 119 119 119
+		low_b=np.uint8([0,0,0])
+		high_b=np.uint8([200,200,200])
+		mask=cv2.inRange(img,low_b,high_b)
+		contours,hierarchy=cv2.findContours(mask,2,cv2.CHAIN_APPROX_NONE)
+		cv2.circle(img,(253,255),5,(0,0,255),-1)
+		if len(contours)>0:
+			c=max(contours,key=cv2.contourArea)
+			M=cv2.moments(c)
+			if M['m00']!=0:
+				cx=int(M['m10']/M['m00'])
+				cy=int(M['m01']/M['m00'])
+				cv2.circle(img,(cx,cy),5,(255,255,0),-1)
+				print(cx,cy)
+		# cx= 253 +- 35 error =0
+		# cx= 218 -> 183 error =
+		#cx = 183 ->148
+		#cx =148 -> 113
+		#
+		# road width =450
+		#228, 178,128,78,28
+		#278,328, 378, 428, 478
+
+		#206,180,154,128,104,77,51,25
+		if cx<=278 and cx>228:
+			error=0
+		elif cx<=228 and cx>178:
+			error=1
+		elif cx<=178 and cx>128:
+			error =2
+		elif cx<=128 and cx > 78:
+			error=3
+		elif cx<=78 and cx>=28:
+			error=4
+		elif cx>278 and cx <=328:
+			error=-1
+		elif cx >328 and cx <=378:
+			error=-2
+		elif cx>378 and cx<=428:
+			error =-3
+		elif cx>428 and cx<=478:
+			error =-4
+
+		# if straight line then pid else turn right or left 
+		# previous_error=pid(sim,error,previous_error)
+
+		cv2.drawContours(img,c,-1,(0,255,0),3)
+		cv2.imshow('mask',mask)
+		cv2.imshow('image',img)
+
+		cv2.waitKey(1)
 	##################################################
 
 def read_qr_code(sim):
@@ -111,7 +191,10 @@ def read_qr_code(sim):
 if __name__ == "__main__":
 	client = RemoteAPIClient()
 	sim = client.getObject('sim')	
-
+	left=sim.getObjectHandle('/Diff_Drive_Bot/left_joint')
+	right=sim.getObjectHandle('/Diff_Drive_Bot/right_joint')
+	sim.setJointTargetVelocity(left,0)
+	sim.setJointTargetVelocity(right,0)
 	try:
 
 		## Start the simulation using ZeroMQ RemoteAPI
