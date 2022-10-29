@@ -64,6 +64,27 @@ def pid(sim,error, previous_error):
 	sim.setJointTargetVelocity(left,2-pid_value)
 	sim.setJointTargetVelocity(right,2+pid_value)
 	return error
+def move_left(sim):
+	left=sim.getObjectHandle('/Diff_Drive_Bot/left_joint')
+	right=sim.getObjectHandle('/Diff_Drive_Bot/right_joint')
+	sim.setJointTargetVelocity(left,-1)
+	sim.setJointTargetVelocity(right,1)
+	time.sleep(2)
+
+def move_right(sim):
+	left=sim.getObjectHandle('/Diff_Drive_Bot/left_joint')
+	right=sim.getObjectHandle('/Diff_Drive_Bot/right_joint')
+	sim.setJointTargetVelocity(left,1)
+	sim.setJointTargetVelocity(right,-1)
+	time.sleep(2)
+
+def stop(sim):
+	left=sim.getObjectHandle('/Diff_Drive_Bot/left_joint')
+	right=sim.getObjectHandle('/Diff_Drive_Bot/right_joint')
+	sim.setJointTargetVelocity(left,0)
+	sim.setJointTargetVelocity(right,0)
+def dropoff():
+	pass
 def control_logic(sim):
 	"""
 	Purpose:
@@ -158,7 +179,7 @@ def control_logic(sim):
 			error =-4
 		# R    G   B
 		# 253, 204,4
-		##### detecting a node
+		##### detecting a node############################################
 		img_hsv=cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
 		# cv2.imshow('hsv',img_hsv)
 		# print(img_hsv[109][320])
@@ -182,9 +203,58 @@ def control_logic(sim):
 			nodes=nodes+1
 			temp=1
 		elif counter==0 and temp==1:
-			# if nodes==
+			if nodes==1:
+				##move_left
+				move_left(sim)
+			elif nodes==2:
+				##move_right
+				move_right(sim)
+			elif nodes==3:
+				##move_left
+				move_left(sim)
+			elif nodes==4:
+				#move_right
+				move_right(sim)
+			elif nodes==5:
+				##drop_off 
+				dropoff()
+			elif nodes==6:
+				##move_right
+				move_right(sim)
+			elif nodes==7:
+				##move_left
+				move_left(sim)
+			elif nodes==8:
+				##move_right
+				move_right(sim)
+			elif nodes==9:
+				##drop off
+				dropoff()
+			elif nodes==10:
+				##move_right
+				move_right(sim)
+			elif nodes==11:
+				##move_left
+				move_left(sim)
+			elif nodes==12:
+				##move_right
+				move_right(sim)
+			elif nodes==13:
+				#dropoff
+				dropoff()
+			elif nodes==14:
+				##move_right
+				move_right(sim)
+			elif nodes==15:
+				##move_left
+				move_left(sim)
+			elif nodes==16:
+				##move_right
+				move_right(sim)
+			
 			temp=0
-		####################################################
+		##############################################################
+
 		previous_error=pid(sim,error,previous_error)
 		print(nodes)
 		print('end')
