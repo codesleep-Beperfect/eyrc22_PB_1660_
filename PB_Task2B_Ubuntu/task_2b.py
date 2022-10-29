@@ -52,8 +52,8 @@ from pyzbar.pyzbar import decode
 
 
 ##############################################################
-kp=1
-kd=0
+kp=0.59
+kd=0.09
 def pid(sim,error, previous_error):
 	P=error*kp
 	D=error-previous_error
@@ -69,22 +69,28 @@ def move_left(sim):
 	right=sim.getObjectHandle('/Diff_Drive_Bot/right_joint')
 	sim.setJointTargetVelocity(left,-1)
 	sim.setJointTargetVelocity(right,1)
-	time.sleep(2)
+	time.sleep(2.6)
 
 def move_right(sim):
 	left=sim.getObjectHandle('/Diff_Drive_Bot/left_joint')
 	right=sim.getObjectHandle('/Diff_Drive_Bot/right_joint')
 	sim.setJointTargetVelocity(left,1)
 	sim.setJointTargetVelocity(right,-1)
-	time.sleep(2)
+	time.sleep(2.6)
 
 def stop(sim):
 	left=sim.getObjectHandle('/Diff_Drive_Bot/left_joint')
 	right=sim.getObjectHandle('/Diff_Drive_Bot/right_joint')
 	sim.setJointTargetVelocity(left,0)
 	sim.setJointTargetVelocity(right,0)
-def dropoff():
-	pass
+def dropoff(sim,checkpoint):
+	message=read_qr_code(sim)
+	obj_package={"Orange Cone":"package_1","Pink Cuboid":"package_3","Blue Cylinder": "package_2"}
+	# print(message)
+	## Retrieve the handle of the Arena_dummy scene object.
+	arena_dummy_handle = sim.getObject("/Arena_dummy") 
+	childscript_handle = sim.getScript(sim.scripttype_childscript, arena_dummy_handle, "")
+	sim.callScriptFunction("deliver_package", childscript_handle, obj_package[message], checkpoint)
 def control_logic(sim):
 	"""
 	Purpose:
@@ -186,10 +192,10 @@ def control_logic(sim):
 		low_b_y=np.uint8([20,248,250])
 		high_b_y=np.uint8([26,253,255])
 		mask_yellow=cv2.inRange(img_hsv,low_b_y,high_b_y)
-		cv2.imshow('mask_yellow',mask_yellow)
+		# cv2.imshow('mask_yellow',mask_yellow)
 		
 		contours_y,_=cv2.findContours(mask_yellow,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-		print('start')
+		# print('start')
 		counter=0
 		for contour in contours_y:
 			approx=cv2.approxPolyDP(contour,0.1*cv2.arcLength(contour,True),True)
@@ -198,10 +204,26 @@ def control_logic(sim):
 			# print(len(approx))
 		# print(counter)
 
-		if counter==44 and temp==0:
-			
+		if counter==44  and temp==0 :
+			stop(sim)
+			time.sleep(0.5)
 			nodes=nodes+1
 			temp=1
+			if(nodes==5):
+				arena_dummy_handle = sim.getObject("/Arena_dummy") 
+				childscript_handle = sim.getScript(sim.scripttype_childscript, arena_dummy_handle, "")
+				sim.callScriptFunction("activate_qr_code", childscript_handle, "checkpoint E")
+				dropoff(sim, "checkpoint E")
+			elif(nodes==9):
+				arena_dummy_handle = sim.getObject("/Arena_dummy") 
+				childscript_handle = sim.getScript(sim.scripttype_childscript, arena_dummy_handle, "")
+				sim.callScriptFunction("activate_qr_code", childscript_handle, "checkpoint I")
+				dropoff(sim, "checkpoint I")	
+			elif(nodes==13):
+				arena_dummy_handle = sim.getObject("/Arena_dummy") 
+				childscript_handle = sim.getScript(sim.scripttype_childscript, arena_dummy_handle, "")
+				sim.callScriptFunction("activate_qr_code", childscript_handle, "checkpoint M")
+				dropoff(sim, "checkpoint M")
 		elif counter==0 and temp==1:
 			if nodes==1:
 				##move_left
@@ -215,9 +237,6 @@ def control_logic(sim):
 			elif nodes==4:
 				#move_right
 				move_right(sim)
-			elif nodes==5:
-				##drop_off 
-				dropoff()
 			elif nodes==6:
 				##move_right
 				move_right(sim)
@@ -227,9 +246,9 @@ def control_logic(sim):
 			elif nodes==8:
 				##move_right
 				move_right(sim)
-			elif nodes==9:
-				##drop off
-				dropoff()
+			# elif nodes==9:
+			# 	##drop off
+			# 	dropoff()
 			elif nodes==10:
 				##move_right
 				move_right(sim)
@@ -239,9 +258,9 @@ def control_logic(sim):
 			elif nodes==12:
 				##move_right
 				move_right(sim)
-			elif nodes==13:
-				#dropoff
-				dropoff()
+			# elif nodes==13:
+			# 	#dropoff
+			# 	dropoff()
 			elif nodes==14:
 				##move_right
 				move_right(sim)
@@ -251,13 +270,16 @@ def control_logic(sim):
 			elif nodes==16:
 				##move_right
 				move_right(sim)
-			
+			elif nodes==17:
+				
+				stop(sim)
+				break
 			temp=0
 		##############################################################
 
 		previous_error=pid(sim,error,previous_error)
-		print(nodes)
-		print('end')
+		# print(nodes)
+		# print('end')
 		
 		
 		
@@ -266,8 +288,8 @@ def control_logic(sim):
 		previous_error=pid(sim,error,previous_error)
 
 		# cv2.drawContours(img,c,-1,(0,255,0),3)
-		cv2.imshow('mask',mask)
-		cv2.imshow('image',img)
+		# cv2.imshow('mask',mask)
+		# cv2.imshow('image',img)
 
 		cv2.waitKey(1)
 	##################################################
@@ -294,6 +316,22 @@ def read_qr_code(sim):
 	control_logic(sim)
 	"""
 	qr_message = None
+	vision_sensor_handle=sim.getObjectHandle('/Diff_Drive_Bot/vision_sensor')
+
+	img,shape=sim.getVisionSensorImg(vision_sensor_handle)
+		# print(shape)
+	img=np.frombuffer(img,dtype=np.uint8).reshape(shape[0],shape[1],3)
+	img=cv2.flip(cv2.cvtColor(img,cv2.COLOR_BGR2RGB),0)
+	qrs=decode(img)
+	for qr in qrs:
+		qr_message= qr.data.decode('UTF-8')
+
+	# for qr in qrs_raw:
+	# 	points=qr.polygon
+    # 	center=[int((points[0].x+points[2].x)/2),int((points[0].y+points[2].y)/2)]
+    # 	Qr_codes_details[qr.data.decode('UTF-8')]=center
+
+	
 	##############  ADD YOUR CODE HERE  ##############
 
 	##################################################
