@@ -61,8 +61,8 @@ def pid(sim,error, previous_error):
 	left=sim.getObjectHandle('/Diff_Drive_Bot/left_joint')
 	right=sim.getObjectHandle('/Diff_Drive_Bot/right_joint')
 	#right velo +pid_value
-	sim.setJointTargetVelocity(left,4-pid_value)
-	sim.setJointTargetVelocity(right,4+pid_value)
+	sim.setJointTargetVelocity(left,2-pid_value)
+	sim.setJointTargetVelocity(right,2+pid_value)
 	return error
 def control_logic(sim):
 	"""
@@ -95,6 +95,9 @@ def control_logic(sim):
 	vision_sensor_handle=sim.getObjectHandle('/Diff_Drive_Bot/vision_sensor')
 	error=0
 	previous_error=0
+
+	nodes=0
+	temp=0
 	while True:
 		img,shape=sim.getVisionSensorImg(vision_sensor_handle)
 		# print(shape)
@@ -106,19 +109,25 @@ def control_logic(sim):
 		#light gray 198 198 198
 		#medium gray 154 154 154
 		#dark gray 119 119 119
+
 		low_b=np.uint8([0,0,0])
 		high_b=np.uint8([200,200,200])
+		# low_b=np.uint8([88,173,193])
+		# high_b=np.uint8([6,206,256])
 		mask=cv2.inRange(img,low_b,high_b)
 		contours,hierarchy=cv2.findContours(mask,2,cv2.CHAIN_APPROX_NONE)
-		cv2.circle(img,(253,255),5,(0,0,255),-1)
+
+		# cv2.circle(img,(253,255),5,(0,0,255),-1)
 		if len(contours)>0:
+			# print(len(contours))
 			c=max(contours,key=cv2.contourArea)
 			M=cv2.moments(c)
 			if M['m00']!=0:
 				cx=int(M['m10']/M['m00'])
 				cy=int(M['m01']/M['m00'])
-				cv2.circle(img,(cx,cy),5,(255,255,0),-1)
-				print(cx,cy)
+				# cv2.circle(img,(cx,cy),5,(255,255,0),-1)
+				
+				# print(cx,cy)
 		# cx= 253 +- 35 error =0
 		# cx= 218 -> 183 error =
 		#cx = 183 ->148
@@ -147,11 +156,46 @@ def control_logic(sim):
 			error =-3
 		elif cx>428 and cx<=478:
 			error =-4
+		# R    G   B
+		# 253, 204,4
+		##### detecting a node
+		img_hsv=cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+		# cv2.imshow('hsv',img_hsv)
+		# print(img_hsv[109][320])
+		low_b_y=np.uint8([20,248,250])
+		high_b_y=np.uint8([26,253,255])
+		mask_yellow=cv2.inRange(img_hsv,low_b_y,high_b_y)
+		cv2.imshow('mask_yellow',mask_yellow)
+		
+		contours_y,_=cv2.findContours(mask_yellow,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+		print('start')
+		counter=0
+		for contour in contours_y:
+			approx=cv2.approxPolyDP(contour,0.1*cv2.arcLength(contour,True),True)
+			cv2.drawContours(img,[approx],0,(0,0,255),5)
+			counter=counter+len(approx)
+			# print(len(approx))
+		# print(counter)
 
+		if counter==44 and temp==0:
+			
+			nodes=nodes+1
+			temp=1
+		elif counter==0 and temp==1:
+			# if nodes==
+			temp=0
+		####################################################
+		previous_error=pid(sim,error,previous_error)
+		print(nodes)
+		print('end')
+		
+		
+		
+		
 		# if straight line then pid else turn right or left 
-		# previous_error=pid(sim,error,previous_error)
+		previous_error=pid(sim,error,previous_error)
 
-		cv2.drawContours(img,c,-1,(0,255,0),3)
+		# cv2.drawContours(img,c,-1,(0,255,0),3)
 		cv2.imshow('mask',mask)
 		cv2.imshow('image',img)
 
