@@ -63,7 +63,22 @@ def detect_all_nodes(image):
 	end_node = ""
 
 	##############	ADD YOUR CODE HERE	##############
-	
+	for i in range(1, 7):
+		for j in range(1, 7):
+			red = image[i*100, j*100][2]
+			green=image[i*100,j*100][1]
+
+			purple=image[i*100,j*100]
+
+			if purple[0]==189 and purple[1]==43 and purple[2]==105:
+				end_node=end_node+(chr(64+j)+str(i))
+			if green==255:
+				start_node=start_node+(chr(64+j)+str(i))
+			
+			if red == 255:
+				loc = chr(64+j)+str(i) 
+				traffic_signals.append(loc)
+	traffic_signals.sort()
 
 	##################################################
 
@@ -246,7 +261,39 @@ def path_planning(graph, start, end):
 	backtrace_path=[]
 
 	##############	ADD YOUR CODE HERE	##############
-	
+	node=36
+	dist={}
+	for i in graph:
+		dist[i]=1e9
+	vis={}
+	path={}
+	for i in graph:
+		vis[i]=0
+		path[i]=""
+		dist[start]=0
+	for i in range(node):
+		# find  minimum  node
+		min_node=find_minimum(node,vis,dist)
+		# print(min_node)
+		vis[min_node]=1
+		if min_node=="":
+			continue 
+		for j in graph[min_node]:
+			# print(graph[min_node][j])
+			# print(j)
+			if(graph[min_node][j]+dist[min_node]<dist[j]):
+				dist[j]=graph[min_node][j]+dist[min_node]
+				path[j]=min_node
+	curr_node=end
+	backtrace_path=[]
+	while True:
+		if curr_node==start:
+			break
+		backtrace_path.append(curr_node)
+		curr_node=path[curr_node]
+
+	backtrace_path.append(start)
+	backtrace_path.reverse()
 	##################################################
 
 	# print(backtrace_path)
