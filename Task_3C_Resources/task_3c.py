@@ -153,17 +153,72 @@ if __name__ == "__main__":
     task_1b = __import__('task_1b')
 #################################  ADD YOUR CODE HERE  ################################
 
-cap = cv2.VideoCapture(1)
-# cap2 = cv2.VideoCapture(0)
-while True:
+    cap = cv2.VideoCapture(0)
+    x1=-10
+    y1=-10
+    x2=-10
+    y2=-10
+    x3=-10
+    y3=-10
+    x4=-10
+    y4=-10
+    tl=()
+    tr=()
+    bl=()
+    br=()
+    # cap2 = cv2.VideoCapture(0)
+    while True:
 
-    ret, frame = cap.read()
-    cv2.imshow('frame',frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+        ret, frame = cap.read()
+        frame=frame[40:,100:510]
+        print(frame.shape)
+        # frame=cv2.resize(frame,None,fx=0.5,fy=0.5,interpolation=cv2.INTER_AREA)
+        Aruco_details,Aruco_corners=task_1b.detect_ArUco_details(frame)
+        task_1b.mark_ArUco_image(frame,Aruco_details, Aruco_corners)
+        # print(Aruco_details)
+        if(x1==-10 and y1==-10):
+            if Aruco_details.get(1):
+                #br
+                x1=Aruco_details[1][0][0]
+                y1=Aruco_details[1][0][1]
+                br=(x1,y1)
+        if(x2==-10 and y2==-10):
+            if Aruco_details.get(2):
+                #bl
+                x2=Aruco_details[2][0][0]
+                y2=Aruco_details[2][0][1]
+                bl=(x2,y2)
+        if(x3==-10 and y3==-10):
+            if Aruco_details.get(3):
+                #tl
+                x3=Aruco_details[3][0][0]
+                y3=Aruco_details[3][0][1]
+                tl=(x3,y3)
+        if(x4==-10 and y4==-10):
+            
+            if Aruco_details.get(4):
+                #tr
+                x4=Aruco_details[4][0][0]
+                y4=Aruco_details[4][0][1]  
+                tr=(x4,y4)  
+        if x1!=-10 and x2!=-10 and x3!=-10 and x4!=-10:
+            # print(Aruco_details[1][0])
+            pts1=numpy.float32([tl,bl,tr,br])
+            pts2=numpy.float32([[0,0],[0,440],[410,0],[410,440]])
+            matrix=cv2.getPerspectiveTransform(pts1,pts2)
+            transformed_frame=cv2.warpPerspective(frame,matrix,(410,440))
+            cv2.imshow('transformed_frame',transformed_frame)
+            # print(x1,y1)
+            # print(x2,y2)
+            # print(x3,y3)
+            # print(x4,y4)
+        cv2.imshow('frame',frame)
+        
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
-cap.release()
-cv2.destroyAllWindows()
+    cap.release()
+    cv2.destroyAllWindows()
 
 #######################################################################################
 
