@@ -38,9 +38,20 @@ import zmq
 
 
 #####################################################################################
-
+x1=-10
+y1=-10
+x2=-10
+y2=-10
+x3=-10
+y3=-10
+x4=-10
+y4=-10
+tl=()
+tr=()
+bl=()
+br=()
 def perspective_transform(image):
-
+    global x1,y1,x2,y2,x3,y3,x4,y4,tl,tr,bl,br
     """
     Purpose:
     ---
@@ -67,9 +78,42 @@ def perspective_transform(image):
     ---
     warped_image = perspective_transform(image)
     """   
-    warped_image = [] 
+    warped_image = []
+    Aruco_details,Aruco_corners=task_1b.detect_ArUco_details(image) 
 #################################  ADD YOUR CODE HERE  ###############################
-    
+    if(x1==-10 and y1==-10):
+        if Aruco_details.get(1):
+            #br
+            x1=Aruco_details[1][0][0]
+            y1=Aruco_details[1][0][1]
+            br=(x1,y1)
+    if(x2==-10 and y2==-10):
+        if Aruco_details.get(2):
+            #bl
+            x2=Aruco_details[2][0][0]
+            y2=Aruco_details[2][0][1]
+            bl=(x2,y2)
+    if(x3==-10 and y3==-10):
+        if Aruco_details.get(3):
+            #tl
+            x3=Aruco_details[3][0][0]
+            y3=Aruco_details[3][0][1]
+            tl=(x3,y3)
+    if(x4==-10 and y4==-10):
+        
+        if Aruco_details.get(4):
+            #tr
+            x4=Aruco_details[4][0][0]
+            y4=Aruco_details[4][0][1]  
+            tr=(x4,y4)  
+    if x1!=-10 and x2!=-10 and x3!=-10 and x4!=-10:
+        # print(Aruco_details[1][0])
+        pts1=numpy.float32([tl,bl,tr,br])
+        pts2=numpy.float32([[0,0],[0,440],[410,0],[410,440]])
+        matrix=cv2.getPerspectiveTransform(pts1,pts2)
+        warped_image=cv2.warpPerspective(image,matrix,(410,440))
+        # cv2.imshow('transformed_frame',transformed_frame)
+
 ######################################################################################
 
     return warped_image
@@ -108,9 +152,29 @@ def transform_values(image):
     """   
     scene_parameters = []
 #################################  ADD YOUR CODE HERE  ###############################
- 
+    Aruco_details1,Aruco_corners1=task_1b.detect_ArUco_details(image)
+    # task_1b.mark_ArUco_image(frame,Aruco_details1, Aruco_corners1)
+    # cv2.imshow('marked',frame)
+    # print(Aruco_details)
+    if Aruco_details1.get(5):
+        x_pixel=Aruco_details1[5][0][0]
+        y_pixel=Aruco_details1[5][0][1]
+        # print(x_pixel,y_pixel)
+        y_cop=0.0046*y_pixel-1.0164
+        pixel_per_cm=-16.091*y_cop*y_cop*y_cop*y_cop*y_cop+15.367*y_cop*y_cop*y_cop*y_cop+13.697*y_cop*y_cop*y_cop-37*y_cop*y_cop-0.4782*y_cop+197.66
+        x_cop=(186-x_pixel)*1.0/pixel_per_cm
+        # print(x_cop,y_cop)
 ######################################################################################
-
+        angle_image=Aruco_details1[5][1]
+        angle_cop=0
+        if angle_image>0:
+            angle_cop=angle_image-180
+        if angle_image<=0:
+            angle_cop=angle_image+180
+        # print(angle_image,angle_cop)
+        scene_parameters.append(x_cop)
+        scene_parameters.append(y_cop)
+        scene_parameters.append(angle_cop)
     return scene_parameters
 
 
@@ -154,65 +218,35 @@ if __name__ == "__main__":
 #################################  ADD YOUR CODE HERE  ################################
 
     cap = cv2.VideoCapture(0)
-    x1=-10
-    y1=-10
-    x2=-10
-    y2=-10
-    x3=-10
-    y3=-10
-    x4=-10
-    y4=-10
-    tl=()
-    tr=()
-    bl=()
-    br=()
+    
     # cap2 = cv2.VideoCapture(0)
     while True:
 
         ret, frame = cap.read()
         frame=frame[40:,100:510]
-        print(frame.shape)
+        # print(frame.shape)
         # frame=cv2.resize(frame,None,fx=0.5,fy=0.5,interpolation=cv2.INTER_AREA)
-        Aruco_details,Aruco_corners=task_1b.detect_ArUco_details(frame)
-        task_1b.mark_ArUco_image(frame,Aruco_details, Aruco_corners)
-        # print(Aruco_details)
-        if(x1==-10 and y1==-10):
-            if Aruco_details.get(1):
-                #br
-                x1=Aruco_details[1][0][0]
-                y1=Aruco_details[1][0][1]
-                br=(x1,y1)
-        if(x2==-10 and y2==-10):
-            if Aruco_details.get(2):
-                #bl
-                x2=Aruco_details[2][0][0]
-                y2=Aruco_details[2][0][1]
-                bl=(x2,y2)
-        if(x3==-10 and y3==-10):
-            if Aruco_details.get(3):
-                #tl
-                x3=Aruco_details[3][0][0]
-                y3=Aruco_details[3][0][1]
-                tl=(x3,y3)
-        if(x4==-10 and y4==-10):
+#         cameraMatrix=numpy.array([[551.08249975 ,  0. ,        317.11478236],
+#  [  0.       ,  552.23427882, 242.22738787],
+#  [  0.     ,      0.      ,     1.        ]])
+#         dist=numpy.array([[-0.29563795, -0.23636282 , 0.00803049 , 0.00837717 , 0.5514923 ]])
+#         h,  w = frame.shape[:2]
+#         newCameraMatrix, roi = cv2.getOptimalNewCameraMatrix(cameraMatrix, dist, (w,h), 1, (w,h))
+
+
+
+# # Undistort 
+#         dst = cv2.undistort(frame, cameraMatrix, dist, None, newCameraMatrix)
+        # Aruco_details,Aruco_corners=task_1b.detect_ArUco_details(frame)
+        t=perspective_transform(frame)
+        if len(t):
+            # pass
+            # t = cv2.undistort(t, cameraMatrix, dist, None, newCameraMatrix)
+            a=transform_values(t)
+            print(a)
+            cv2.imshow('frame2',t)
             
-            if Aruco_details.get(4):
-                #tr
-                x4=Aruco_details[4][0][0]
-                y4=Aruco_details[4][0][1]  
-                tr=(x4,y4)  
-        if x1!=-10 and x2!=-10 and x3!=-10 and x4!=-10:
-            # print(Aruco_details[1][0])
-            pts1=numpy.float32([tl,bl,tr,br])
-            pts2=numpy.float32([[0,0],[0,440],[410,0],[410,440]])
-            matrix=cv2.getPerspectiveTransform(pts1,pts2)
-            transformed_frame=cv2.warpPerspective(frame,matrix,(410,440))
-            cv2.imshow('transformed_frame',transformed_frame)
-            # print(x1,y1)
-            # print(x2,y2)
-            # print(x3,y3)
-            # print(x4,y4)
-        cv2.imshow('frame',frame)
+        # cv2.imshow('frame',frame)
         
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
