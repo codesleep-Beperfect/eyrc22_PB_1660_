@@ -40,7 +40,7 @@ import math
 from zmqRemoteApi import RemoteAPIClient
 import zmq
 ##############################################################
-kp=5.8 #working fine for 5.1
+kp=5.8 #working fine for 5.8
 kd=0 #working fine for 1.33
 def forward(sim,left,right,distance_side,e_prev):
 	if distance_side==None or (distance_side >= 0.170 and distance_side<0.180):
@@ -189,7 +189,7 @@ def detect_distance_sensor_1(sim):
 	distance = None
 
 	##############  ADD YOUR CODE HERE  ##############
-	sensor1=sim.getObjectHandle('/distance_sensor_1')
+	sensor1=sim.getObjectHandle('/Diff_Drive_Bot/distance_sensor_1')
 	
 	temp=sim.readProximitySensor(sensor1)
 	if temp[0]:
