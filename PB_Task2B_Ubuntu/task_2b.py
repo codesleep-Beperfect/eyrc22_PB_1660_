@@ -52,8 +52,8 @@ from pyzbar.pyzbar import decode
 
 
 ##############################################################
-kp=0.59
-kd=0.09
+kp=0.6
+kd=0
 def pid(sim,error, previous_error):
 	P=error*kp
 	D=error-previous_error
@@ -61,22 +61,22 @@ def pid(sim,error, previous_error):
 	left=sim.getObjectHandle('/Diff_Drive_Bot/left_joint')
 	right=sim.getObjectHandle('/Diff_Drive_Bot/right_joint')
 	#right velo +pid_value
-	sim.setJointTargetVelocity(left,2-pid_value)
-	sim.setJointTargetVelocity(right,2+pid_value)
+	sim.setJointTargetVelocity(left,3-pid_value)
+	sim.setJointTargetVelocity(right,3+pid_value)
 	return error
 def move_left(sim):
 	left=sim.getObjectHandle('/Diff_Drive_Bot/left_joint')
 	right=sim.getObjectHandle('/Diff_Drive_Bot/right_joint')
 	sim.setJointTargetVelocity(left,-1)
 	sim.setJointTargetVelocity(right,1)
-	time.sleep(2.6)
+	time.sleep(2)
 
 def move_right(sim):
 	left=sim.getObjectHandle('/Diff_Drive_Bot/left_joint')
 	right=sim.getObjectHandle('/Diff_Drive_Bot/right_joint')
 	sim.setJointTargetVelocity(left,1)
 	sim.setJointTargetVelocity(right,-1)
-	time.sleep(2.6)
+	time.sleep(2)
 
 def stop(sim):
 	left=sim.getObjectHandle('/Diff_Drive_Bot/left_joint')
@@ -206,7 +206,7 @@ def control_logic(sim):
 
 		if counter==44  and temp==0 :
 			stop(sim)
-			time.sleep(0.5)
+			time.sleep(0.25)
 			nodes=nodes+1
 			temp=1
 			if(nodes==5):
