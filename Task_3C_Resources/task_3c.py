@@ -227,6 +227,7 @@ if __name__ == "__main__":
     task_1b = __import__('task_1b')
 #################################  ADD YOUR CODE HERE  ################################
 
+
     cap = cv2.VideoCapture(0)
     
     # cap2 = cv2.VideoCapture(0)
@@ -243,6 +244,7 @@ if __name__ == "__main__":
    1.30080094e+00]])
         h,  w = frame.shape[:2]
         newCameraMatrix, roi = cv2.getOptimalNewCameraMatrix(cameraMatrix, dist, (w,h), 1, (w,h))
+
 
 
 
