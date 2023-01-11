@@ -60,7 +60,11 @@ cv.destroyAllWindows()
 
 ret, cameraMatrix, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, frameSize, None, None)
 
-
+print(ret)
+print(cameraMatrix)
+print(dist)
+print(rvecs)
+print(tvecs)
 ############## UNDISTORTION #####################################################
 
 img = cv.imread('frame5.png')
@@ -71,11 +75,12 @@ newCameraMatrix, roi = cv.getOptimalNewCameraMatrix(cameraMatrix, dist, (w,h), 1
 
 # Undistort
 dst = cv.undistort(img, cameraMatrix, dist, None, newCameraMatrix)
-
+cv.imshow('test',dst)
+cv.waitKey(0)
 # crop the image
 x, y, w, h = roi
 dst = dst[y:y+h, x:x+w]
-cv.imwrite('caliResult1.png', dst)
+# cv.imwrite('caliResult1.png', dst)
 
 
 
@@ -99,4 +104,4 @@ for i in range(len(objpoints)):
     error = cv.norm(imgpoints[i], imgpoints2, cv.NORM_L2)/len(imgpoints2)
     mean_error += error
 
-print( "total error: {}".format(mean_error/len(objpoints)) )
+# print( "total error: {}".format(mean_error/len(objpoints)) )
