@@ -86,26 +86,26 @@ def perspective_transform(image):
             #br
             x1=Aruco_details[1][0][0]
             y1=Aruco_details[1][0][1]
-            br=(x1,y1)
+            tl=(x1,y1)
     if(x2==-10 and y2==-10):
         if Aruco_details.get(2):
             #bl
             x2=Aruco_details[2][0][0]
             y2=Aruco_details[2][0][1]
-            bl=(x2,y2)
+            tr=(x2,y2)
     if(x3==-10 and y3==-10):
         if Aruco_details.get(3):
             #tl
             x3=Aruco_details[3][0][0]
             y3=Aruco_details[3][0][1]
-            tl=(x3,y3)
+            br=(x3,y3)
     if(x4==-10 and y4==-10):
         
         if Aruco_details.get(4):
             #tr
             x4=Aruco_details[4][0][0]
             y4=Aruco_details[4][0][1]  
-            tr=(x4,y4)  
+            bl=(x4,y4)  
     if x1!=-10 and x2!=-10 and x3!=-10 and x4!=-10:
         # print(Aruco_details[1][0])
         pts1=numpy.float32([tl,bl,tr,br])
@@ -160,21 +160,21 @@ def transform_values(image):
         x_pixel=Aruco_details1[5][0][0]
         y_pixel=Aruco_details1[5][0][1]
         # print(x_pixel,y_pixel)
-        y_cop=0.0046*y_pixel-1.0164
-        pixel_per_cm=-16.091*y_cop*y_cop*y_cop*y_cop*y_cop+15.367*y_cop*y_cop*y_cop*y_cop+13.697*y_cop*y_cop*y_cop-37*y_cop*y_cop-0.4782*y_cop+197.66
-        x_cop=(186-x_pixel)*1.0/pixel_per_cm
+        y_cop=0.0044*y_pixel-0.9787+0.03
+        pixel_per_cm=103.85*y_cop*y_cop*y_cop*y_cop*y_cop-5.0625*y_cop*y_cop*y_cop*y_cop-81.685*y_cop*y_cop*y_cop-4.182*y_cop*y_cop+9.8966*y_cop+210.86
+        x_cop=(215-x_pixel)*1.0/pixel_per_cm-0.1 
         # print(x_cop,y_cop)
 ######################################################################################
         angle_image=Aruco_details1[5][1]
-        angle_cop=0
-        if angle_image>0:
-            angle_cop=angle_image-180
-        if angle_image<=0:
-            angle_cop=angle_image+180
+        # angle_cop=0
+        # if angle_image>0:
+        #     angle_cop=180-angle_image
+        # if angle_image<=0:
+        #     angle_cop=angle_image+180
         # print(angle_image,angle_cop)
         scene_parameters.append(x_cop)
         scene_parameters.append(y_cop)
-        scene_parameters.append(angle_cop)
+        scene_parameters.append(angle_image)
     return scene_parameters
 
 
@@ -204,9 +204,19 @@ def set_values(scene_parameters):
     ---
     set_values(scene_parameters)
     """   
+    
     aruco_handle = sim.getObject('/aruco_5')
+    aruco_handle_3=sim.getObject('/Arena')
 #################################  ADD YOUR CODE HERE  ###############################
-
+    if len(scene_parameters):
+        sim.setObjectPosition(aruco_handle,aruco_handle_3,[scene_parameters[0],scene_parameters[1],0])
+        # if( scene_parameters[2]<=90):
+        #     alpha=(90-scene_parameters[2])*0.0175
+        # else :
+        #     alpha=(scene_parameters[2]-90)*0.0175
+        # print(scene_parameters[2])
+        angle_rad=scene_parameters[2]*0.0175
+        sim.setObjectOrientation(aruco_handle,sim.handle_world,[0,0,angle_rad])
 ######################################################################################
 
     return None
@@ -226,27 +236,29 @@ if __name__ == "__main__":
         frame=frame[40:,100:510]
         # print(frame.shape)
         # frame=cv2.resize(frame,None,fx=0.5,fy=0.5,interpolation=cv2.INTER_AREA)
-#         cameraMatrix=numpy.array([[551.08249975 ,  0. ,        317.11478236],
-#  [  0.       ,  552.23427882, 242.22738787],
-#  [  0.     ,      0.      ,     1.        ]])
-#         dist=numpy.array([[-0.29563795, -0.23636282 , 0.00803049 , 0.00837717 , 0.5514923 ]])
-#         h,  w = frame.shape[:2]
-#         newCameraMatrix, roi = cv2.getOptimalNewCameraMatrix(cameraMatrix, dist, (w,h), 1, (w,h))
+        cameraMatrix=numpy.array([[669.2721006 ,   0.    ,     308.27537125],
+ [  0.      ,   664.83129387 ,268.35372325],
+ [  0.,           0.  ,         1.  ,      ]])
+        dist=numpy.array([[-7.77722198e-01 , 2.17364635e-02, -7.01392560e-04 , 5.27929722e-03,
+   1.30080094e+00]])
+        h,  w = frame.shape[:2]
+        newCameraMatrix, roi = cv2.getOptimalNewCameraMatrix(cameraMatrix, dist, (w,h), 1, (w,h))
 
 
 
 # # Undistort 
-#         dst = cv2.undistort(frame, cameraMatrix, dist, None, newCameraMatrix)
+        dst = cv2.undistort(frame, cameraMatrix, dist, None, newCameraMatrix)
         # Aruco_details,Aruco_corners=task_1b.detect_ArUco_details(frame)
-        t=perspective_transform(frame)
+        t=perspective_transform(dst)
         if len(t):
             # pass
             # t = cv2.undistort(t, cameraMatrix, dist, None, newCameraMatrix)
             a=transform_values(t)
-            print(a)
-            cv2.imshow('frame2',t)
+            # print(a)
+            set_values(a)
+            # cv2.imshow('frame2',t)
             
-        # cv2.imshow('frame',frame)
+        cv2.imshow('Frame',frame)
         
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
