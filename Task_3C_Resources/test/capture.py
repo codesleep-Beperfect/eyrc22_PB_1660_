@@ -3,7 +3,7 @@ import numpy as np
 import cv2 
 import numpy 
 from  numpy import interp
-from zmqRemoteApi import RemoteAPIClient
+# from zmqRemoteApi import RemoteAPIClient
 import zmq
 
 cap=cv2.VideoCapture(0)
