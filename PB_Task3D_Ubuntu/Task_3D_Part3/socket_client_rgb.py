@@ -41,227 +41,242 @@ GPIO.setwarnings(False)
 
 def setup_client(host, port):
 
-	"""
-	Purpose:
-	---
-	This function creates a new socket client and then tries
-	to connect to a socket server.
+    """
+    Purpose:
+    ---
+    This function creates a new socket client and then tries
+    to connect to a socket server.
 
-	Input Arguments:
-	---
-	`host` :	[ string ]
-			host name or ip address for the server
+    Input Arguments:
+    ---
+    `host` :	[ string ]
+            host name or ip address for the server
 
-	`port` : [ string ]
-			integer value specifying port name
-	Returns:
+    `port` : [ string ]
+            integer value specifying port name
+    Returns:
 
-	`client` : [ socket object ]
-			   a new client socket object
-	---
+    `client` : [ socket object ]
+               a new client socket object
+    ---
 
-	
-	Example call:
-	---
-	client = setup_client(host, port)
-	""" 
+    
+    Example call:
+    ---
+    client = setup_client(host, port)
+    """ 
 
-	client = None
+    client = None
 
-	##################	ADD YOUR CODE HERE	##################
-	client=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-	client.connect((host,port))
+    ##################	ADD YOUR CODE HERE	##################
+    client=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    client.connect((host,port))
 
 
-	##########################################################
+##########################################################
 
-	return client
+    return client
 
 def receive_message_via_socket(client):
-	"""
-	Purpose:
-	---
-	This function listens for a message from the specified
-	socket connection and returns the message when received.
+    """
+    Purpose:
+    ---
+    This function listens for a message from the specified
+    socket connection and returns the message when received.
 
-	Input Arguments:
-	---
-	`client` :	[ socket object ]
-			client socket object created by setup_client() function
-	Returns:
-	---
-	`message` : [ string ]
-			message received through socket communication
-	
-	Example call:
-	---
-	message = receive_message_via_socket(connection)
-	"""
+    Input Arguments:
+    ---
+    `client` :	[ socket object ]
+            client socket object created by setup_client() function
+    Returns:
+    ---
+    `message` : [ string ]
+            message received through socket communication
+    
+    Example call:
+    ---
+    message = receive_message_via_socket(connection)
+    """
 
-	message = None
+    message = None
 
-	##################	ADD YOUR CODE HERE	##################
-	message=client.recv(1024)
-	message=message.decode("utf-8")
+    ##################	ADD YOUR CODE HERE	##################
+    message=client.recv(1024)
+    message=message.decode("utf-8")
 
-	##########################################################
+    ##########################################################
 
-	return message
+    return message
 
 def send_message_via_socket(client, message):
-	"""
-	Purpose:
-	---
-	This function sends a message over the specified socket connection
+    """
+    Purpose:
+    ---
+    This function sends a message over the specified socket connection
 
-	Input Arguments:
-	---
-	`client` :	[ socket object ]
-			client socket object created by setup_client() function
+    Input Arguments:
+    ---
+    `client` :	[ socket object ]
+            client socket object created by setup_client() function
 
-	`message` : [ string ]
-			message sent through socket communication
+    `message` : [ string ]
+            message sent through socket communication
 
-	Returns:
-	---
-	None
-	
-	Example call:
-	---
-	send_message_via_socket(connection, message)
-	"""
+    Returns:
+    ---
+    None
+    
+    Example call:
+    ---
+    send_message_via_socket(connection, message)
+    """
 
-	##################	ADD YOUR CODE HERE	##################
-	client.send(bytes(message,"utf-8"))
+    ##################	ADD YOUR CODE HERE	##################
+    client.send(bytes(message,"utf-8"))
 
-	##########################################################
+    ##########################################################
 
 def rgb_led_setup():
-	"""
-	Purpose:
-	---
-	This function configures pins connected to rgb led as output and
-	enables PWM on the pins 
+    """
+    Purpose:
+    ---
+    This function configures pins connected to rgb led as output and
+    enables PWM on the pins 
 
-	Input Arguments:
-	---
-	You are free to define input arguments for this function.
+    Input Arguments:
+    ---
+    You are free to define input arguments for this function.
 
-	Returns:
-	---
-	You are free to define output parameters for this function.
-	
-	Example call:
-	---
-	rgb_led_setup()
-	"""
+    Returns:
+    ---
+    You are free to define output parameters for this function.
+    
+    Example call:
+    ---
+    rgb_led_setup()
+    """
 
-	##################	ADD YOUR CODE HERE	##################
+    ##################	ADD YOUR CODE HERE	##################
 
-	GPIO.setup(17,GPIO.OUT )#red
-	GPIO.setup(27,GPIO.OUT)#green
-	GPIO.setup(22,GPIO.OUT)#blue
-	##########################################################
-	
-def rgb_led_set_color(color):
-	"""
-	Purpose:
-	---
-	This function takes the color as input and changes the color of rgb led
-	connected to Raspberry Pi 
+    GPIO.setup(17,GPIO.OUT )#red
+    GPIO.setup(27,GPIO.OUT)#green
+    GPIO.setup(22,GPIO.OUT)#blue
+    red=GPIO.PWM(17,255)
+    green=GPIO.PWM(27,255)
+    blue=GPIO.PWM(22,255)
+    #time.sleep(10)
+    return red, green ,blue
+    ##########################################################
+    
+def rgb_led_set_color(color,red,green,blue):
+    """
+    Purpose:
+    ---
+    This function takes the color as input and changes the color of rgb led
+    connected to Raspberry Pi 
 
-	Input Arguments:
-	---
+    Input Arguments:
+    ---
 
-	`color` : [ string ]
-			color detected in QR code communicated by server
-	
-	You are free to define any additional input arguments for this function.
+    `color` : [ string ]
+            color detected in QR code communicated by server
+    
+    You are free to define any additional input arguments for this function.
 
-	Returns:
-	---
-	You are free to define output parameters for this function.
-	
-	Example call:
-	---
-	rgb_led_set_color(color)
-	"""    
+    Returns:
+    ---
+    You are free to define output parameters for this function.
+    
+    Example call:
+    ---
+    rgb_led_set_color(color)
+    """    
 
-	##################	ADD YOUR CODE HERE	##################
+    ##################	ADD YOUR CODE HERE	##################
 
-	red=GPIO.PWM(17,255)
-	green=GPIO.PWM(27,255)
-	blue=GPIO.PWM(22,255)
-	red.start(255)
-	green.start(255)
-	blue.start(255)
-	if color=="RED":
-		red.start(0)
-	elif color=="GREEN":
-		green.start(0)
-	elif color=="BLUE":
-		blue.start(0)
-	elif color=="ORANGE":
-		red.start(0)
-		green.start(255-165)
+    
+    #red.start(0)
+    #green.start(0)
+    #blue.start(0)
+    if color=="Red":
+        #print("RED done")
+        red.start(100)
+        green.start(0)
+        blue.start(0)
+    elif color=="Green":
+        #print("Green Done")
+        green.start(100)
+        red.start(0)
+        blue.start(0)
+    elif color=="Blue":
+        #print("Blue DOne")
+        blue.start(100)
+        red.start(0)
+        green.start(0)
+    elif color=="Orange":
+        #print("Orange DOne")
+        red.start(100)
+        green.start((int)(35/255 *100))
 
-	elif color=="PINK":
-		red.start(255-255)
-		green.start(255-20)
-		blue.start(255-147)
+    elif color=="Pink":
+        red.start(100)
+        green.start((int)(0/255 *100))
+        blue.start((int)(122/255 *100))
 
-		# pass
-	elif color=="SKY BLUE":
-		red.start(255-135)
-		green.start(255-206)
-		blue.start(255-235)
-		# pass
+        # pass
+    elif color=="Sky Blue":
+        red.start(0)
+        green.start((int)(100/255 *100))
+        blue.start((int)(100/255 *100))
+        # pass
 
-	
-	##########################################################
+    
+    ##########################################################
 
 if __name__ == "__main__":
+    
 
-		host = "192.168.184.32"
-		port = 5050
+    host = "192.168.137.32"
+    port = 5050
 
-		## 
-		redPin = 24
-		gndPin = 23
-		greenPin = 5
-		bluePin = 18
+    ## 
+    redPin = 24
+    gndPin = 23
+    greenPin = 5
+    bluePin = 18
 
-		## PWM values to be set for rgb led to display different colors
-		pwm_values = {"Red": (255, 0, 0), "Blue": (0, 0, 255), "Green": (0, 255, 0), "Orange": (255, 35, 0), "Pink": (255, 0, 122), "Sky Blue": (0, 100, 100)}
-
-
-		## Configure rgb led pins
-		rgb_led_setup()
+    ## PWM values to be set for rgb led to display different colors
+    pwm_values = {"Red": (255, 0, 0), "Blue": (0, 0, 255), "Green": (0, 255, 0), "Orange": (255, 35, 0), "Pink": (255, 0, 122), "Sky Blue": (0, 100, 100)}
 
 
-		## Set up new socket client and connect to a socket server
-		try:
-			client = setup_client(host, port)
+    ## Configure rgb led pins
+    red,green,blue=rgb_led_setup()
 
 
-		except socket.error as error:
-			print("Error in setting up server")
-			print(error)
-			sys.exit()
+    ## Set up new socket client and connect to a socket server
+    try:
+        client = setup_client(host, port)
 
-		## Wait for START command from socket_server_rgb.py
-		message = receive_message_via_socket(client)
-		if message == "START":
-			print("\nTask 3D Part 3 execution started !!")
 
-		while True:
-			## Receive message from socket_server_rgb.py
-			message = receive_message_via_socket(client)
+    except socket.error as error:
+        print("Error in setting up server")
+        print(error)
+        sys.exit()
 
-			## If received message is STOP, break out of loop
-			if message == "STOP":
-				print("\nTask 3D Part 3 execution stopped !!")
-				break
-			else:
-				print("Color received: " + message)
-				rgb_led_set_color(message)
+    ## Wait for START command from socket_server_rgb.py
+    message = receive_message_via_socket(client)
+    if message == "START":
+        print("\nTask 3D Part 3 execution started !!")
+
+    while True:
+        ## Receive message from socket_server_rgb.py
+        message = receive_message_via_socket(client)
+
+        ## If received message is STOP, break out of loop
+        if message == "STOP":
+            print("\nTask 3D Part 3 execution stopped !!")
+            break
+        else:
+            print("Color received: " + message)
+            rgb_led_set_color(message,red,green,blue)
+
