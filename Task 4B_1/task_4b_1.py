@@ -41,7 +41,7 @@ from picamera import PiCamera
 
 ##############################################################
 
-def control_logic():
+def control_logic(image):
 
     """
     Purpose:
@@ -98,9 +98,43 @@ def move_bot():
     """    
 
     ##################	ADD YOUR CODE HERE	##################
-
+    image=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
+    low_b=np.uint8([0,0,0])
+    high_b=np.uint8([70,70,70])
+    mask=cv2.inRange(image,low_b,high_b)
+    cv2.imshow("mask",mask)
+    contours,hierarchy=cv2.findContours(mask,2,cv2.CHAIN_APPROX_NONE)
+    cx=0
+    cy=0
+		# cv2.circle(img,(253,255),5,(0,0,255),-1)
+    if len(contours)>0:
+        # print(len(contours))
+        c=max(contours,key=cv2.contourArea)
+        M=cv2.moments(c)
+        if M['m00']!=0:
+            cx=int(M['m10']/M['m00'])
+            cy=int(M['m01']/M['m00'])
 
     ##########################################################
+    if cx!=0 and cy!=0:
+        if cx<=278 and cx>228:
+            error=0
+        elif cx<=228 and cx>178:
+            error=1
+        elif cx<=178 and cx>128:
+            error =2
+        elif cx<=128 and cx > 78:
+            error=3
+        elif cx<=78 and cx>=28:
+            error=4
+        elif cx>278 and cx <=328:
+            error=-1
+        elif cx >328 and cx <=378:
+            error=-2
+        elif cx>378 and cx<=428:
+            error =-3
+        elif cx>428 and cx<=478:
+            error=-4
 
 
 
@@ -130,8 +164,25 @@ if __name__ == "__main__":
     """    
 
     ##################	ADD YOUR CODE HERE	##################
+    camera=PiCamera()
+    camera.resolution=(512,512)
+    camera.framerate=32
+    rawCapture=PiRGBArray(camera,size=(512,512))#640,480
+    stream=camera.capture_continuous(rawCapture,format="bgr",use_video_port=True)
+    for frame in stream:
+        image=frame.array
+        cv2.imshow("Frame",image)
+        control_logic(image)
 
+
+        key=cv2.waitKey(1)& 0xFF
+
+        rawCapture.truncate(0)
+
+        if key==ord("q"):
+            cv2.destroyAllWindows()
+            break
 
     ##########################################################
 
-    pass
+    # pass
