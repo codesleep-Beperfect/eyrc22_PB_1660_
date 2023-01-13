@@ -40,7 +40,8 @@ from picamera import PiCamera
 ########### ADD YOUR UTILITY FUNCTIONS HERE ##################
 
 ##############################################################
-
+nodes=0
+temp=0
 def control_logic(image):
 
     """
@@ -68,33 +69,6 @@ def control_logic(image):
     Example call:
     ---
     control_logic()
-    """    
-
-    ##################	ADD YOUR CODE HERE	##################
-
-
-    ##########################################################
-
-def move_bot():
-    """
-    Purpose:
-    ---
-    This function is suppose to move the bot
-
-    Input Arguments:
-    ---
-    You are free to define input arguments for this function.
-
-    Hint: Here you can have inputs left, right, straight, reverse and many more
-        based on your control_logic
-
-    Returns:
-    ---
-    You are free to define output parameters for this function.
-
-    Example call:
-    ---
-    move_bot()
     """    
 
     ##################	ADD YOUR CODE HERE	##################
@@ -135,13 +109,118 @@ def move_bot():
             error =-3
         elif cx>428 and cx<=478:
             error=-4
+    img_hsv=cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
+    cv2.imshow('hsv',img_hsv)
+    # print(img_hsv[109][320])
+    low_b_y=np.uint8([20,248,250])
+    high_b_y=np.uint8([26,253,255])
+    mask_yellow=cv2.inRange(img_hsv,low_b_y,high_b_y)
+    cv2.imshow('mask_yellow',mask_yellow)
+    
+    contours_y,_=cv2.findContours(mask_yellow,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+    # print('start')
+    counter=0
+    for contour in contours_y:
+        approx=cv2.approxPolyDP(contour,0.1*cv2.arcLength(contour,True),True)
+        cv2.drawContours(image,[approx],0,(0,0,255),5)
+        counter=counter+len(approx)
+        # print(len(approx))
+    print(counter)
 
+    if counter>=600 and temp==0:
+        print("Node_detected")
+        #stop
+        nodes=nodes+1
+        temp=1
+    elif counter==0 and temp==1:
+        temp=0
+        if nodes==2:
+            #left
+            pass
+        elif nodes==4:
+            #right
+            pass
+        elif nodes==5:
+            #left
+            pass
+        elif nodes==6:
+            #stop
+            
+            pass
+
+    previous_error=move_bot("straight",error,previous_error)
+    ##########################################################
+
+kp=0.6
+kd=0
+def move_bot(s,error,previous_error):
+    """
+    Purpose:
+    ---
+    This function is suppose to move the bot
+
+    Input Arguments:
+    ---
+    You are free to define input arguments for this function.
+
+    Hint: Here you can have inputs left, right, straight, reverse and many more
+        based on your control_logic
+
+    Returns:
+    ---
+    You are free to define output parameters for this function.
+
+    Example call:
+    ---
+    move_bot()
+    """    
+    left=50
+    right=50
+    ##################	ADD YOUR CODE HERE	##################
+    if s=="stop":
+        pass
+    elif s=="straight":
+        P=error*kp
+        D=error-previous_error
+        pid_value=P+kd*D
+        
+        L_MOTOR1.ChangeDutyCycle(left-pid_value)
+        R_MOTOR1.ChangeDutyCycle(right-pid_value)
+
+        return error
+        # pass
+    elif s=="left":
+        
+        pass
+    elif s=="right":
+        pass
+    
 
 
 ################# ADD UTILITY FUNCTIONS HERE #################
+L_PWM_PIN1=38
+L_PWM_PIN2=40
+R_PWM_PIN2=32
+R_PWM_PIN1=33
+enable_1=31
+enable_2=37
+def motor_pin_setup():
+    global L_MOTOR1,L_MOTOR2,R_MOTOR1,R_MOTOR2
+    GPIO.setup(R_PWM_PIN1,GPIO.OUT,initial=GPIO.LOW)
+    GPIO.setup(R_PWM_PIN2,GPIO.OUT,initial=GPIO.LOW)
+    GPIO.setup(L_PWM_PIN1,GPIO.OUT,initial=GPIO.LOW)
+    GPIO.setup(L_PWM_PIN2,GPIO.OUT,initial=GPIO.LOW)
+    GPIO.setup(enable_1,GPIO.OUT,initial=GPIO.HIGH)
+    GPIO.setup(enable_2,GPIO.OUT,initial=GPIO.HIGH)
 
-
-
+    L_MOTOR1=GPIO.PWM(L_PWM_PIN1,100)
+    R_MOTOR1=GPIO.PWM(R_PWM_PIN1,100)
+    L_MOTOR2=GPIO.PWM(L_PWM_PIN2,100)
+    R_MOTOR2=GPIO.PWM(R_PWM_PIN2,100)
+    L_MOTOR1.start(0)
+    R_MOTOR1.start(0)
+    L_MOTOR2.start(0)
+    R_MOTOR2.start(0)
 
 
 ##############################################################
