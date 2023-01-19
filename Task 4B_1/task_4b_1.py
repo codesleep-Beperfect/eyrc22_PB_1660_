@@ -42,8 +42,12 @@ from picamera import PiCamera
 ##############################################################
 nodes=0
 temp=0
+error=0
+previous_error=0
 def control_logic(image):
-
+    global temp
+    global error
+    global previous_error
     """
     Purpose:
     ---
@@ -88,7 +92,7 @@ def control_logic(image):
         if M['m00']!=0:
             cx=int(M['m10']/M['m00'])
             cy=int(M['m01']/M['m00'])
-
+    
     ##########################################################
     if cx!=0 and cy!=0:
         if cx<=278 and cx>228:
@@ -125,7 +129,7 @@ def control_logic(image):
         cv2.drawContours(image,[approx],0,(0,0,255),5)
         counter=counter+len(approx)
         # print(len(approx))
-    print(counter)
+    # print(counter)
 
     if counter>=600 and temp==0:
         print("Node_detected")
@@ -135,19 +139,24 @@ def control_logic(image):
     elif counter==0 and temp==1:
         temp=0
         if nodes==2:
+            print(move_bot("left",0,0))
             #left
-            pass
+            # pass
         elif nodes==4:
+            print(move_bot("right",0,0))
             #right
-            pass
+            # pass
         elif nodes==5:
+            print(move_bot("left",0,0))
             #left
-            pass
+            # pass
         elif nodes==6:
+            print(move_bot("stop",0,0))
             #stop
             
-            pass
+            # pass
 
+    # previous_error=0
     previous_error=move_bot("straight",error,previous_error)
     ##########################################################
 
@@ -178,7 +187,12 @@ def move_bot(s,error,previous_error):
     right=50
     ##################	ADD YOUR CODE HERE	##################
     if s=="stop":
-        pass
+        L_MOTOR1.ChangeDutyCycle(0)
+        R_MOTOR1.ChangeDutyCycle(0)
+        L_MOTOR2.ChangeDutyCycle(0)
+        R_MOTOR2.ChangeDutyCycle(0)
+        return "Done!"
+        # pass
     elif s=="straight":
         P=error*kp
         D=error-previous_error
@@ -186,14 +200,30 @@ def move_bot(s,error,previous_error):
         
         L_MOTOR1.ChangeDutyCycle(left-pid_value)
         R_MOTOR1.ChangeDutyCycle(right-pid_value)
-
+        L_MOTOR2.ChangeDutyCycle(0)
+        R_MOTOR2.ChangeDutyCycle(0)
         return error
         # pass
     elif s=="left":
-        
-        pass
+        #left velocity = -25
+        #right velocity= 25
+        L_MOTOR1.ChangeDutyCycle(0)
+        L_MOTOR2.ChangeDutyCycle(25)
+        R_MOTOR1.ChangeDutyCycle(25)
+        R_MOTOR2.ChangeDutyCycle(0)
+        time.sleep(2)
+        return "Done!"
+        # pass
     elif s=="right":
-        pass
+        #left velocity= 25
+        #right velocity =-25
+        L_MOTOR1.ChangeDutyCycle(25)
+        L_MOTOR2.ChangeDutyCycle(0)
+        R_MOTOR1.ChangeDutyCycle(0)
+        R_MOTOR2.ChangeDutyCycle(25)
+        time.sleep(2)
+        return "Done!"
+        # pass
     
 
 

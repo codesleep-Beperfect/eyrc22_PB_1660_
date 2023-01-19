@@ -82,7 +82,7 @@ def place_packages(medicine_package_details, sim, all_models):
 	"""
     models_directory = os.getcwd()
     packages_models_directory = os.path.join(models_directory, "package_models")
-    print(packages_models_directory)
+    # print(packages_models_directory)
     arena = sim.getObject('/Arena')    
 ####################### ADD YOUR CODE HERE #########################
     # print(medicine_package_details)
@@ -101,7 +101,7 @@ def place_packages(medicine_package_details, sim, all_models):
             packet=4
         packet=packet-1
         x_coor=-(0.8800-0.36*(shop_no-1)-0.04*(2*packet+1)-0.01+0.005)
-        print(packet)
+        # print(packet)
         y_coor=+(0.6650)
         shape_3d=''
         if shape=='Square':
@@ -173,7 +173,7 @@ def place_traffic_signals(traffic_signals, sim, all_models):
         # node_list=list(node)
         x=map_str_int[node[0]]
         y=map_str_int[node[1]]
-        sim.setObjectPosition(t,arena,(x,y,0.1))
+        sim.setObjectPosition(t,arena,(x,y,0.15588))
         all_models.append(t)
 
 ####################################################################
@@ -225,7 +225,7 @@ def place_start_end_nodes(start_node, end_node, sim, all_models):
         # node_list=list(node)
     x=map_str_int[start_node[0]]
     y=map_str_int[start_node[1]]
-    sim.setObjectPosition(t,arena,(x,y,0.1))
+    sim.setObjectPosition(t,arena,(x,y,0.15588))
     all_models.append(t)
     t=sim.loadModel(end_node_model)
     # print(t)
@@ -234,7 +234,7 @@ def place_start_end_nodes(start_node, end_node, sim, all_models):
         # node_list=list(node)
     x=map_str_int[end_node[0]]
     y=map_str_int[end_node[1]]
-    sim.setObjectPosition(t,arena,(x,y,0.1))
+    sim.setObjectPosition(t,arena,(x,y,0.15588))
     all_models.append(t)
 ####################################################################
     return all_models
