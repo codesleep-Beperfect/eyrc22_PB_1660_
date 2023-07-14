@@ -12,7 +12,7 @@ In the modern age, ensuring efficient mobility solutions is crucial for a city's
 - The virtual arena in CoppeliaSim should indicate package pick-up and delivery since the robot does not have a mechanism for it.
 
 ## Test Video
-<a href="https://www.youtube.com/watch?v=4wBZM202DNg"><img src="https://img.youtube.com/vi/4wBZM202DNg/hqdefault.jpg" align="left" height="48" width="48" ></a>
+<a href="https://www.youtube.com/watch?v=4wBZM202DNg"><img src="https://img.youtube.com/vi/4wBZM202DNg/hqdefault.jpg" align="left"  ></a>
 
 <!-- [![Final Video](https://img.youtube.com/vi/4wBZM202DNg/hqdefault.jpg)](https://www.youtube.com/watch?v=4wBZM202DNg) -->
 
