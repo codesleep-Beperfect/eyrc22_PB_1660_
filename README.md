@@ -15,8 +15,10 @@ In the modern age, ensuring efficient mobility solutions is crucial for a city's
 [![Final Video](https://img.youtube.com/vi/4wBZM202DNg/hqdefault.jpg)](https://www.youtube.com/watch?v=4wBZM202DNg)
 
 ## Robot Picture
-![image](https://github.com/madmaverickminion/eyrc22_PB_1660/assets/88222914/34c63ae1-1b87-44d1-889e-396164d158d2)
-![image](https://github.com/madmaverickminion/eyrc22_PB_1660/assets/88222914/6d06cc77-99bb-43e4-babd-e5dbeb728f28)
+<img src="https://github.com/madmaverickminion/eyrc22_PB_1660/assets/88222914/6d06cc77-99bb-43e4-babd-e5dbeb728f28" width=50% height=50%>
+<img src="https://github.com/madmaverickminion/eyrc22_PB_1660/assets/88222914/6d06cc77-99bb-43e4-babd-e5dbeb728f28" width=50% height=50%>
+<!-- ![image](https://github.com/madmaverickminion/eyrc22_PB_1660/assets/88222914/34c63ae1-1b87-44d1-889e-396164d158d2) -->
+<!-- ![image](https://github.com/madmaverickminion/eyrc22_PB_1660/assets/88222914/6d06cc77-99bb-43e4-babd-e5dbeb728f28) -->
 
 
 
