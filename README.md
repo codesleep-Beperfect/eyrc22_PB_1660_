@@ -11,3 +11,19 @@ In the modern age, ensuring efficient mobility solutions is crucial for a city's
 - The live location and orientation of the robot are monitored using an ArUco marker placed on the robot.
 - The virtual arena in CoppeliaSim should indicate package pick-up and delivery since the robot does not have a mechanism for it.
 
+## Test Video
+[![Final Video](https://img.youtube.com/vi/YOUTUBE_VIDEO_ID_HERE/0.jpg)](https://www.youtube.com/watch?v=4wBZM202DNg)
+
+
+
+## Hardware used
+- Raspberry pi
+- AlphaBot Kit
+- Web Camera and USB cable (for emulation)
+- 18650 Batteries(4) and Battery Charger
+- Jumper wires
+- RBG LED(4)
+
+
+
+
